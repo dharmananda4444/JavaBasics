@@ -237,9 +237,13 @@ public class Main {
 ## Summary
 
 **Classes and Objects:** Fundamental building blocks of OOP.
+
 **Encapsulation:** Restricts access to certain components.
+
 **Inheritance:** Allows new classes to inherit from existing ones.
+
 **Polymorphism:** Methods behave differently based on the object.
+
 **Abstraction:** Hides complex details and exposes essential features.
 
 
@@ -276,7 +280,7 @@ class Dog extends Animal {
 }
 ```
 
-**Interfaces**
+## Interfaces
 
 An interface is a reference type in Java, similar to a class, that can only contain abstract methods (prior to Java 8) and static final variables. Since Java 8, interfaces can also contain default methods and static methods.
 
@@ -320,9 +324,9 @@ class Cat implements Animal {
 
 **When to Use Each**
 
-Abstract Class: Use when you want to provide a common base with some shared implementation, and you want to enforce a class hierarchy.
+**Abstract Class:** Use when you want to provide a common base with some shared implementation, and you want to enforce a class hierarchy.
 
-Interface: Use when you want to define a contract for classes without dictating how they should implement the methods, allowing for greater flexibility and multiple inheritance.
+**Interface:** Use when you want to define a contract for classes without dictating how they should implement the methods, allowing for greater flexibility and multiple inheritance.
 
 
 # Comparable vs Comparator
@@ -422,7 +426,7 @@ System.out.println(people); // Output: [Alice (30), Bob (25)]
 
 In Java, composition, aggregation, and association are concepts used to describe relationships between classes.
 
-1. Association
+**1. Association**
 
 Association is a general term that describes a relationship between two classes. It implies that one class uses or interacts with another class but does not have ownership. The relationship can be one-to-one, one-to-many, or many-to-many.
 
@@ -457,7 +461,7 @@ public class Main {
 }
 ```
 
-2. Aggregation
+**2. Aggregation**
 
 Aggregation is a special form of association that represents a "whole-part" relationship where the part can exist independently of the whole. In aggregation, the lifecycle of the part is not strictly tied to the lifecycle of the whole. This means that while one class (the whole) contains references to another class (the part), the part can outlive the whole and exists independently.
 
@@ -502,7 +506,7 @@ public class Main {
 }
 ```
 
-3. Composition
+**3. Composition**
 
 Composition is a stronger form of aggregation where the part cannot exist independently of the whole. In this relationship, if the whole is destroyed, the part is also destroyed. It represents a "strong ownership" relationship.
 
@@ -540,5 +544,7 @@ public class Main {
 **Summary:**
 
 **Association:** A general relationship where one class uses another. Both classes can exist independently.
+
 **Aggregation:** A "whole-part" relationship where the part can exist independently of the whole.
+
 **Composition:** A strong "whole-part" relationship where the part's lifecycle is tied to the whole; if the whole is destroyed, the part is also destroyed.
