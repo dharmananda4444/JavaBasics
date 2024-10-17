@@ -1,7 +1,7 @@
 package com.basics;
 
 
-public class AbstractClass {
+public class AbstractClassExample {
 
     public static void main(String[] args) {
         Dog myDog = new Dog(); // Create an instance of Dog

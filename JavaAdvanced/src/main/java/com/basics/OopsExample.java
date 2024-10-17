@@ -1,6 +1,6 @@
 package com.basics;
 
-public class OopsClass {
+public class OopsExample {
 
  /*
  //Object and classes usage

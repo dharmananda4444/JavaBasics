@@ -548,3 +548,236 @@ public class Main {
 **Aggregation:** A "whole-part" relationship where the part can exist independently of the whole.
 
 **Composition:** A strong "whole-part" relationship where the part's lifecycle is tied to the whole; if the whole is destroyed, the part is also destroyed.
+
+
+
+# Java(JVM) Memory Model
+
+## Garbage collection
+
+Garbage collection in Java is the process by which Java programs perform automatic memory management. Java programs compile to bytecode that can be run on a Java Virtual Machine, or JVM for short. When Java programs run on the JVM, objects are created on the heap, which is a portion of memory dedicated to the program. Eventually, some objects will no longer be needed. The garbage collector finds these unused objects and deletes them to free up memory.
+
+The programmer need not care for all those objects which are no longer in use. Garbage collector destroys these objects. The main objective of Garbage Collector is to free heap memory by destroying unreachable objects. 
+
+### How Does Garbage Collection in Java works?
+
+Java garbage collection is an automatic process. Automatic garbage collection is the process of looking at heap memory, identifying which objects are in use and which are not, and deleting the unused objects. An in-use object, or a referenced object, means that some part of your program still maintains a pointer to that object. An unused or unreferenced object is no longer referenced by any part of your program. So the memory used by an unreferenced object can be reclaimed. The programmer does not need to mark objects to be deleted explicitly. The garbage collection implementation lives in the JVM. 
+
+### Types of Activities in Java Garbage Collection
+
+Two types of garbage collection activity usually happen in Java.
+
+**Minor or incremental Garbage Collection:** It is said to have occurred when unreachable objects in the young generation heap memory are removed.
+
+**Major or Full Garbage Collection:** It is said to have occurred when the objects that survived the minor garbage collection are copied into the old generation or permanent generation heap memory are removed. When compared to the young generation, garbage collection happens less frequently in the old generation.
+
+
+### Important Concepts Related to Garbage Collection in Java
+
+1. **Unreachable objects:** An object is said to be unreachable if it doesn’t contain any reference to it. Also, note that objects which are part of the island of isolation are also unreachable. 
+
+```java
+Integer i = new Integer(4);
+// the new Integer object is reachable  via the reference in 'i' 
+i = null;
+// the Integer object is no longer reachable. 
+garbage collection
+```
+
+2. **Eligibility for garbage collection:** An object is said to be eligible for GC(garbage collection) if it is unreachable. After i = null, integer object 4 in the heap area is suitable for garbage collection in the above image.
+
+**Ways to make an object eligible for Garbage Collector**
+
+Even though the programmer is not responsible for destroying useless objects but it is highly recommended to make an object unreachable(thus eligible for GC) if it is no longer required.
+There are generally four ways to make an object eligible for garbage collection.
+
+* Nullifying the reference variable
+
+* Re-assigning the reference variable
+
+* An object created inside the method
+
+
+**Ways for requesting JVM to run Garbage Collector**
+
+* Once we make an object eligible for garbage collection, it may not destroy immediately by the garbage collector. Whenever JVM runs the Garbage Collector program, then only the object will be destroyed. But when JVM runs Garbage Collector, we can not expect.
+
+* We can also request JVM to run Garbage Collector. There are two ways to do it : 
+Using System.gc() method: System class contain static method gc() for requesting JVM to run Garbage Collector.
+
+* Using Runtime.getRuntime().gc() method: Runtime class allows the application to interface with the JVM in which the application is running. Hence by using its gc() method, we can request JVM to run Garbage Collector.
+
+* There is no guarantee that any of the above two methods will run Garbage Collector.
+The call System.gc() is effectively equivalent to the call : Runtime.getRuntime().gc()
+
+**Finalization**
+
+* Just before destroying an object, Garbage Collector calls finalize() method on the object to perform cleanup activities. Once finalize() method completes, Garbage Collector destroys that object.
+
+* finalize() method is present in Object class with the following prototype.
+protected void finalize() throws Throwable
+
+
+**Based on our requirement, we can override finalize() method for performing our cleanup activities like closing connection from the database.** 
+
+* The finalize() method is called by Garbage Collector, not JVM. However, Garbage Collector is one of the modules of JVM.
+
+* Object class finalize() method has an empty implementation. Thus, it is recommended to override the finalize() method to dispose of system resources or perform other cleanups.
+
+* The finalize() method is never invoked more than once for any object.
+
+* If an uncaught exception is thrown by the finalize() method, the exception is ignored, and the finalization of that object terminates.
+
+**Advantages of Garbage Collection in Java**
+
+* It makes java memory-efficient because the garbage collector removes the unreferenced objects from heap memory.
+
+* It is automatically done by the garbage collector(a part of JVM), so we don’t need extra effort.
+
+
+## Memory Management in Java - Young Generation
+
+The young generation is the place where all the new objects are created. When the young generation is filled, garbage collection is performed. This garbage collection is called Minor GC.
+
+Young Generation is divided into three parts -**Eden Memory** and **two Survivor Memory spaces**. 
+
+**Important Points about Young Generation Spaces:**
+
+* Most of the newly created objects are located in the Eden memory space.
+
+* When Eden space is filled with objects, Minor GC is performed and all the survivor objects are moved to one of the survivor spaces.
+
+* Minor GC also checks the survivor objects and move them to the other survivor space. So at a time, one of the survivor space is always empty.
+
+* Objects that are survived after many cycles of GC, are moved to the Old generation memory space. Usually, it’s done by setting a threshold for the age of the young generation objects before they become eligible to promote to Old generation.
+
+
+## Memory Management in Java - Old Generation
+
+Old Generation memory contains the objects that are long-lived and survived after many rounds of Minor GC. Usually, garbage collection is performed in Old Generation memory when it’s full. Old Generation Garbage Collection is called Major GC and usually takes a longer time.
+
+**Stop the World Event**
+
+All the Garbage Collections are “Stop the World” events because all application threads are stopped until the operation completes.
+
+Since Young generation keeps short-lived objects, Minor GC is very fast and the application doesn’t get affected by this.
+
+Major GC takes a long time because it checks all the live objects. 
+
+Major GC should be minimized because it will make your application unresponsive for the garbage collection duration. 
+
+So if you have a responsive application and there are a lot of Major Garbage Collection happening, you will notice timeout errors. 
+
+The duration taken by garbage collector depends on the strategy used for garbage collection. That’s why it’s necessary to monitor and tune the garbage collector to avoid timeouts in the highly responsive applications.
+
+**Java Memory Model - Permanent Generation**
+
+Permanent Generation or “Perm Gen” contains the application metadata required by the JVM to describe the classes and methods used in the application. Note that Perm Gen is not part of Java Heap memory. Perm Gen is populated by JVM at runtime based on the classes used by the application. Perm Gen also contains Java SE library classes and methods. Perm Gen objects are garbage collected in a full garbage collection.
+
+**Java Memory Model - Method Area**
+
+Method Area is part of space in the Perm Gen and used to store class structure (runtime constants and static variables) and code for methods and constructors.
+
+
+**Java Memory Model - Memory Pool**
+
+Memory Pools are created by JVM memory managers to create a pool of immutable objects if the implementation supports it. String Pool is a good example of this kind of memory pool. Memory Pool can belong to Heap or Perm Gen, depending on the JVM memory manager implementation.
+
+**Java Memory Model - Runtime Constant Pool**
+
+Runtime constant pool is per-class runtime representation of constant pool in a class. It contains class runtime constants and static methods. Runtime constant pool is part of the method area.
+
+**Java Memory Model - Java Stack Memory**
+
+Java Stack memory is used for execution of a thread. They contain method specific values that are short-lived and references to other objects in the heap that is getting referred from the method. 
+
+
+**Java Heap Space**
+
+Java Heap space is used by java runtime to allocate memory to Objects and JRE classes. 
+
+Whenever we create an object, it’s always created in the Heap space.
+
+Garbage Collection runs on the heap memory to free the memory used by objects that don’t have any reference. 
+
+Any object created in the heap space has global access and can be referenced from anywhere of the application.
+
+**Java Stack Memory**
+
+Java Stack memory is used for the execution of a thread. 
+
+They contain method-specific values that are short-lived and references to other objects in the heap that is getting referred from the method. 
+
+Stack memory is always referenced in LIFO (Last-In-First-Out) order. Whenever a method is invoked, a new block is created in the stack memory for the method to hold local primitive values and reference to other objects in the method. 
+
+As soon as the method ends, the block becomes unused and becomes available for the next method. Stack memory size is very less compared to Heap memory.
+
+
+# Spring IoC (Inversion of Control)
+
+Spring IoC (Inversion of Control) Container is the core of Spring Framework. 
+
+It creates the objects, configures and assembles their dependencies, manages their entire life cycle.
+
+The Container uses Dependency Injection(DI) to manage the components that make up the application. It gets the information about the objects from a configuration file(XML) or Java Code or Java Annotations and Java POJO class. 
+
+These objects are called Beans. Since the Controlling of Java objects and their lifecycle is not done by the developers, hence the name Inversion Of Control. 
+
+The followings are some of the main features of Spring IoC,
+
+* Creating Object for us
+
+* Managing our objects
+
+* Helping our application to be configurable
+
+* Managing dependencies
+
+# Spring Dependency Injection
+
+Dependency Injection is the main functionality provided by Spring IOC(Inversion of Control). 
+
+The Spring-Core module is responsible for injecting dependencies through either Constructor or Setter methods. 
+
+The design principle of Inversion of Control emphasizes keeping the Java classes independent of each other and the container frees them from object creation and maintenance.
+
+ These classes, managed by Spring, must adhere to the standard definition of Java-Bean. Dependency Injection in Spring also ensures loose coupling between the classes. 
+
+ Dependency Injection is a key feature of the Spring Framework, allowing for loosely coupled, reusable code.
+
+ 
+ # Spring IoC (Inversion of Control) vs Spring Dependency Injection
+
+ |                                                              Spring IoC (Inversion of Control)                                                              |                                                                     Spring Dependency Injection                                                                    |
+|:-----------------------------------------------------------------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+| Spring IoC Container is the core of Spring Framework. It creates the objects, configures and assembles their dependencies, manages their entire life cycle. | Spring Dependency injection is a way to inject the dependency of a framework component by the following ways of spring: Constructor Injection and Setter Injection |
+|                       Spring helps in creating objects, managing objects, configurations, etc. because of IoC (Inversion of Control).                       |                               Spring framework helps in the creation of loosely-coupled applications because of Dependency Injection.                              |
+|                                                     Spring IoC is achieved through Dependency Injection.                                                    |                Dependency Injection is the method of providing the dependencies and Inversion of Control is the end result of Dependency Injection.                |
+|                                         IoC is a design principle where the control flow of the program is inverted.                                        |                                                 Dependency Injection is one of the subtypes of the IOC principle.                                                  |
+|                                          Aspect-Oriented Programming is one way to implement Inversion of Control.                                          |                                            In case of any changes in business requirements, no code change is required.                                            |
+
+
+# Types of DI(Dependency Injection) 
+
+## Constructor Based Dependency Injection
+
+Constructor Based Dependency Injection is the most recommended dependency injection technique in the Spring Framework. This technique involves passing all necessary dependencies for an object as arguments to the constructor. The object is created only after all necessary dependencies have been provided.
+
+The main reason for preferring dependency injection through the constructor is that it allows dependencies to be explicit and mandatory. This means that all dependencies necessary for an object to function correctly must be provided at object creation time, which ensures that the object is in a valid state from the start. In addition, injecting dependencies through the constructor makes the code easier to understand and maintain, as all dependencies required for the object are clearly defined in the constructor.
+
+Let’s look at an example:
+
+```java
+public class ProductService {
+   private final ProductRepository productRepository;
+  
+   public ProductService(ProductRepository productRepository) {
+      this.productRepository = productRepository;
+   }
+}
+```
+In this example, the ProductService class has a dependency on ProductRepository , which is passed as an argument in the constructor.
+
+In the example I mentioned above, you don’t need to use the @Autowired annotation when using dependency injection through the constructor. This is because Spring Framework can automatically detect the constructor with arguments and provide the corresponding dependency instances at runtime.
+
+So, in the example I showed, Spring Framework will detect that the ProductServiceclass has a constructor with an argument of type ProductRepository, and will look for a bean of type ProductRepositoryto inject. Since the ProductRepositoryis defined as a bean in the Spring context, an instance of ProductRepositorywill be created and injected into the constructor of ProductService.
