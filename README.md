@@ -781,3 +781,571 @@ In this example, the ProductService class has a dependency on ProductRepository 
 In the example I mentioned above, you don’t need to use the @Autowired annotation when using dependency injection through the constructor. This is because Spring Framework can automatically detect the constructor with arguments and provide the corresponding dependency instances at runtime.
 
 So, in the example I showed, Spring Framework will detect that the ProductServiceclass has a constructor with an argument of type ProductRepository, and will look for a bean of type ProductRepositoryto inject. Since the ProductRepositoryis defined as a bean in the Spring context, an instance of ProductRepositorywill be created and injected into the constructor of ProductService.
+
+
+# Immutable class
+
+Immutable class in java means that once an object is created, we cannot change its content. 
+
+In Java, all the wrapper classes (like Integer, Boolean, Byte, Short) and String class is immutable. 
+
+We can create our own immutable class as well. 
+
+**Characteristics of imutable class**
+
+* The class must be declared as final so that child classes can’t be created.
+
+* Data members in the class must be declared private so that direct access is not allowed.
+
+* Data members in the class must be declared as final so that we can’t change the value of it after object creation.
+
+* A parameterized constructor should initialize all the fields performing a deep copy so that data members can’t be modified with an object reference.
+
+* Deep Copy of objects should be performed in the getter methods to return a copy rather than returning the actual object reference)
+
+**Note:** There should be no setters or in simpler terms, there should be no option to change the value of the instance variable. 
+
+```java
+public final class ImmutableClassExample {
+
+
+        private final String name;
+        private final List<String> hobbies;
+
+        // Constructor
+        public ImmutableClassExample(String name, List<String> hobbies) {
+            this.name = name;
+            // Create a defensive copy of the list to prevent modification
+            this.hobbies = List.copyOf(hobbies);
+        }
+
+        // Getter for name
+        public String getName() {
+            return name;
+        }
+
+        // Getter for hobbies
+        public List<String> getHobbies() {
+            return hobbies; // Returns the unmodifiable list
+        }
+
+    public static void main(String[] args) {
+        List<String> hobbies = Arrays.asList("Reading", "Swimming", "Cycling");
+        ImmutableClassExample person = new ImmutableClassExample("Alice", hobbies);
+
+        System.out.println(person); // Output: ImmutablePerson{name='Alice', hobbies=[Reading, Swimming, Cycling]}
+
+        // Trying to modify the name or hobbies will result in an error
+        // person.name = "Bob"; // Compilation error
+        // person.getHobbies().add("Running"); // Runtime error if attempted
+    }
+
+
+}
+
+```
+# Singleton Class
+
+A Singleton class is a design pattern that restricts the instantiation of a class to a single instance. This is useful when exactly one object is needed to coordinate actions across the system.
+
+**Different ways of intialization of Singleton:**
+
+**1. Eager Initialization**
+
+In this method, the instance of the class is created at the time of class loading.
+
+
+```java
+public class EagerSingleton {
+    private static final EagerSingleton instance = new EagerSingleton();
+
+    private EagerSingleton() {
+        // private constructor to prevent instantiation
+    }
+
+    public static EagerSingleton getInstance() {
+        return instance;
+    }
+}
+
+
+public class Main {
+    public static void main(String[] args) {
+        EagerSingleton singleton = EagerSingleton.getInstance();
+        System.out.println(singleton);
+    }
+}
+```
+
+**2. Lazy Initialization**
+
+This method creates the instance only when it is requested for the first time.
+
+
+```java
+public class LazySingleton {
+    private static LazySingleton instance;
+
+    private LazySingleton() {
+        // private constructor to prevent instantiation
+    }
+
+    public static LazySingleton getInstance() {
+        if (instance == null) {
+            instance = new LazySingleton();
+        }
+        return instance;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        LazySingleton singleton = LazySingleton.getInstance();
+        System.out.println(singleton);
+    }
+}
+```
+
+**3. Thread-Safe Singleton (Synchronized Method)**
+
+To make the lazy initialization thread-safe, you can synchronize the method that returns the instance.
+
+
+```java
+public class SynchronizedSingleton {
+    private static SynchronizedSingleton instance;
+
+    private SynchronizedSingleton() {
+        // private constructor to prevent instantiation
+    }
+
+    public static synchronized SynchronizedSingleton getInstance() {
+        if (instance == null) {
+            instance = new SynchronizedSingleton();
+        }
+        return instance;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        SynchronizedSingleton singleton = SynchronizedSingleton.getInstance();
+        System.out.println(singleton);
+    }
+}
+```
+
+**4. Double-Checked Locking**
+
+This approach reduces the overhead of acquiring a lock by first checking if the instance is null without synchronization.
+
+
+```java
+public class DoubleCheckedLockingSingleton {
+    private static volatile DoubleCheckedLockingSingleton instance;
+
+    private DoubleCheckedLockingSingleton() {
+        // private constructor to prevent instantiation
+    }
+
+    public static DoubleCheckedLockingSingleton getInstance() {
+        if (instance == null) {
+            synchronized (DoubleCheckedLockingSingleton.class) {
+                if (instance == null) {
+                    instance = new DoubleCheckedLockingSingleton();
+                }
+            }
+        }
+        return instance;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        DoubleCheckedLockingSingleton singleton = DoubleCheckedLockingSingleton.getInstance();
+        System.out.println(singleton);
+    }
+}
+```
+
+**5. Bill Pugh Singleton (Using Inner Static Class)**
+
+This method uses an inner static helper class to hold the instance, which gets loaded only when it is accessed.
+
+
+```java
+public class BillPughSingleton {
+    private BillPughSingleton() {
+        // private constructor to prevent instantiation
+    }
+
+    private static class SingletonHelper {
+        private static final BillPughSingleton INSTANCE = new BillPughSingleton();
+    }
+
+    public static BillPughSingleton getInstance() {
+        return SingletonHelper.INSTANCE;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        BillPughSingleton singleton = BillPughSingleton.getInstance();
+        System.out.println(singleton);
+    }
+}
+```
+
+
+6. Enum Singleton
+
+Using an enum is a simple and effective way to implement a Singleton. Java guarantees that enum values are instantiated only once.
+
+
+```java
+public enum EnumSingleton {
+    INSTANCE;
+
+    public void someMethod() {
+        // Method logic
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        EnumSingleton singleton = EnumSingleton.INSTANCE;
+        singleton.someMethod();
+        System.out.println(singleton);
+    }
+}
+```
+
+Summary
+
+* Eager Initialization: Instance created at class loading.
+
+* Lazy Initialization: Instance created when needed.
+
+* Synchronized Method: Thread-safe lazy initialization.
+
+* Double-Checked Locking: Reduces synchronization overhead.
+
+* Bill Pugh Singleton: Uses an inner static class for instance creation.
+
+* Enum Singleton: Simple and thread-safe approach.
+
+
+# Exception Handling
+
+Exception handling is a programming construct used to manage errors and exceptional conditions that occur during the execution of a program. It allows developers to write robust code that can gracefully handle unexpected situations, such as invalid input, resource unavailability, or runtime errors, without crashing the program.
+
+**Key Concepts of Exception Handling**
+
+**Exceptions:** An exception is an event that disrupts the normal flow of the program. It can be caused by various issues, such as invalid user input, file not found, or network errors.
+
+**Try-Catch Block:**
+
+*  **Try:** A block of code that may throw an exception is wrapped in a try block.
+ 
+*  **Catch:** The catch block is used to handle the exception. If an exception occurs in the try block, control is transferred to the corresponding catch block.
+ 
+*  **Finally Block:** The finally block, if present, executes after the try and catch blocks, regardless of whether an exception occurred. It’s often used for cleanup activities, like closing files or releasing resources.
+
+*  **Throwing Exceptions:** You can use the throw statement to create and throw an exception when a specific condition occurs.
+
+
+**Checked vs. Unchecked Exceptions:**
+
+* **Checked Exceptions:** Must be declared in the method signature or handled within the method.
+
+* **Unchecked Exceptions:** Do not need to be declared or caught.
+
+Example of Exception Handling
+
+
+```java
+public class ExceptionHandlingExample {
+    public static void main(String[] args) {
+        try {
+            int result = divide(10, 0); // This will throw ArithmeticException
+            System.out.println("Result: " + result);
+        } catch (ArithmeticException e) {
+            System.err.println("Error: Cannot divide by zero. " + e.getMessage());
+        } finally {
+            System.out.println("Execution completed.");
+        }
+    }
+
+    public static int divide(int a, int b) {
+        return a / b; // Potentially throws ArithmeticException
+    }
+}
+```
+
+Explanation of the Example:
+
+* **Try Block:** The divide method is called within a try block, which may throw an exception if division by zero occurs.
+
+* **Catch Block:** If an ArithmeticException is thrown, the program jumps to the catch block, where an error message is printed.
+
+* **Finally Block:** Regardless of whether an exception occurred, the finally block runs, ensuring that cleanup or final actions are performed.
+
+**Benefits of Exception Handling:**
+
+* Improved Code Quality: Makes your code more robust and easier to understand.
+
+* Separation of Error Handling: Allows you to separate normal code from error-handling code, enhancing readability.
+
+* Resource Management: Helps in managing resources like file streams, network connections, etc., ensuring they are properly closed or released.
+
+
+## 1. Checked Exceptions
+
+ Checked exceptions are exceptions that must be either caught or declared in the method signature using the throws keyword. These exceptions are checked at compile-time.
+
+**Examples:**
+
+* IOException
+* SQLException
+
+
+```java
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
+public class CheckedExceptionExample {
+    public static void readFile(String filePath) {
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new FileReader(filePath));
+            String line = reader.readLine();
+            System.out.println(line);
+        } catch (IOException e) {
+            System.err.println("Error reading file: " + e.getMessage());
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    System.err.println("Error closing reader: " + e.getMessage());
+                }
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        readFile("nonexistent.txt");
+    }
+}
+```
+
+## 2. Unchecked Exceptions
+
+ Unchecked exceptions do not need to be declared or caught. They are derived from the RuntimeException class and occur at runtime.
+
+Examples:
+
+* NullPointerException
+
+* ArrayIndexOutOfBoundsException
+
+* ArithmeticException
+
+
+```java
+public class UncheckedExceptionExample {
+    public static void divide(int a, int b) {
+        try {
+            int result = a / b; // This may throw ArithmeticException
+            System.out.println("Result: " + result);
+        } catch (ArithmeticException e) {
+            System.err.println("Cannot divide by zero: " + e.getMessage());
+        }
+    }
+
+    public static void main(String[] args) {
+        divide(10, 0); // This will cause an ArithmeticException
+    }
+}
+```
+
+Summary:
+
+* Checked Exceptions: Must be caught or declared. Examples include IOException and SQLException.
+
+* Unchecked Exceptions: Do not require explicit handling. Examples include NullPointerException, ArrayIndexOutOfBoundsException, and ArithmeticException.
+
+
+## throw and throws
+
+1. Throw
+
+Definition: The throw keyword is used to explicitly throw an exception from a method or any block of code. When you want to signal an error condition programmatically, you use throw.
+
+Example:
+
+```java
+public class ThrowExample {
+    public static void validateAge(int age) {
+        if (age < 18) {
+            // Throwing an exception
+            throw new IllegalArgumentException("Age must be 18 or older.");
+        } else {
+            System.out.println("Valid age: " + age);
+        }
+    }
+
+    public static void main(String[] args) {
+        try {
+            validateAge(15); // This will throw an exception
+        } catch (IllegalArgumentException e) {
+            System.err.println("Caught exception: " + e.getMessage());
+        }
+    }
+}
+
+```
+
+
+2. throws
+
+Definition: The throws keyword is used in a method declaration to specify that the method can throw one or more exceptions. This informs the caller of the method that it should handle those exceptions.
+
+Example:
+
+```java
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
+public class ThrowsExample {
+    // Method declaration with throws
+    public static void readFile(String filePath) throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader(filePath));
+        String line = reader.readLine();
+        System.out.println(line);
+        reader.close();
+    }
+
+    public static void main(String[] args) {
+        try {
+            readFile("nonexistent.txt"); // This may throw an IOException
+        } catch (IOException e) {
+            System.err.println("Caught exception: " + e.getMessage());
+        }
+    }
+}
+```
+
+Output:
+Caught exception: nonexistent.txt (No such file or directory)
+
+**Summary**
+
+throw: Used to explicitly throw an exception. It can throw any exception type, and it can be used within any method or block of code.
+
+throws: Used in method signatures to declare that the method may throw certain exceptions. It informs the caller to handle or propagate the exception.
+
+
+## Exception Propagation
+
+Exception propagation in Java refers to the way exceptions are passed up the call stack when they are not handled in the current method. 
+
+When an exception occurs, Java looks for a suitable catch block in the current method. 
+
+If it doesn't find one, the exception is propagated (or passed) to the calling method, and this process continues until a suitable catch block is found or the main method is reached.
+
+Exception propagation allows methods to remain clean and focused on their tasks without needing to handle every possible exception.
+
+Instead, the responsibility of handling exceptions can be managed at a higher level in the call stack, making error handling more organized and maintainable.
+
+
+```java
+public class ExceptionPropagationExample {
+
+    public static void main(String[] args) {
+        try {
+            methodA();
+        } catch (Exception e) {
+            System.out.println("Caught in main: " + e.getMessage());
+        }
+    }
+
+    public static void methodA() {
+        System.out.println("In methodA");
+        methodB();
+    }
+
+    public static void methodB() {
+        System.out.println("In methodB");
+        methodC();
+    }
+
+    public static void methodC() {
+        System.out.println("In methodC");
+        // This will throw an exception
+        throw new ArithmeticException("Division by zero error");
+    }
+}
+```
+
+## Custom Exceptions
+
+Custom exceptions in Java are user-defined exception classes that extend the existing exception hierarchy. 
+
+They allow developers to create more specific and meaningful error handling mechanisms tailored to the needs of their applications. 
+
+Instead of relying solely on built-in exceptions (like NullPointerException, IllegalArgumentException, etc.), custom exceptions can convey specific error conditions that are relevant to your business logic or application flow.
+
+**Key Features of Custom Exceptions**
+
+* Specificity: Custom exceptions can represent specific error scenarios that are not adequately captured by standard exceptions.
+
+* Clarity: By using custom exceptions, you can make your code more understandable. Others reading your code (or you, in the future) will have a clearer idea of what kinds of errors can occur.
+
+* Granularity: You can create multiple custom exceptions to handle different error conditions in the same module or application, allowing for fine-grained control over error handling.
+
+* Encapsulation: Custom exceptions can encapsulate additional information, such as error codes, context, or related data, which can be useful for debugging and logging.
+
+
+**Step 1: Define a Custom Exception**
+
+
+```java
+// InvalidInputException.java
+public class InvalidInputException extends Exception {
+    public InvalidInputException(String message) {
+        super(message);
+    }
+
+    public InvalidInputException(String message, Throwable cause) {
+        super(message, cause);
+    }
+}
+```
+
+**Step 2: Use the Custom Exception in Your Code**
+
+
+```java
+// InputExceptionValidator.java
+public class InputExceptionValidator {
+
+    public static void main(String[] args) {
+        try {
+            validateInput("abc"); // This will throw InvalidInputException
+        } catch (InvalidInputException e) {
+            System.out.println("Caught InvalidInputException: " + e.getMessage());
+        }
+    }
+
+    public static void validateInput(String input) throws InvalidInputException {
+        if (input == null || input.isEmpty()) {
+            throw new InvalidInputException("Input cannot be null or empty.");
+        }
+        System.out.println("Input is valid: " + input);
+    }
+
+}
+```
